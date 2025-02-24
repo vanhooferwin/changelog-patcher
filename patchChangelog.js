@@ -5,7 +5,7 @@
  * This script:
  *  - Reads CHANGELOG.md.
  *  - Finds the "Unreleased" section.
- *  - Extracts content for each category (Added, Changed, etc.) using a regex that tolerates extra whitespace.
+ *  - Extracts content for each category (Added, Changed, etc.).
  *  - Retrieves the version number from package.json.
  *  - Checks if that version already exists in the changelog (to prevent a version conflict).
  *  - Creates a new release section with today’s date and moves the unreleased content over.
@@ -18,7 +18,6 @@
 const fs = require('fs');
 const path = require('path');
 
-
 function getFirstVersionHeader(changelogContent) {
   const versionRegex = /^##\s*\[(?:V)?(\d+\.\d+\.\d+)\]\s*-\s*\d{4}-\d{2}-\d{2}/m;
   const match = changelogContent.match(versionRegex);
@@ -29,24 +28,23 @@ function isHigherVersion(version, currentVersion) {
   // Split the version strings into arrays of numbers.
   const versionParts = version.split('.').map(Number);
   const currentParts = currentVersion.split('.').map(Number);
-  
+
   // Determine the longest length between the two version arrays.
   const maxLength = Math.max(versionParts.length, currentParts.length);
-  
+
   // Compare each part: major, minor, patch, etc.
   for (let i = 0; i < maxLength; i++) {
     // If a part is missing, treat it as 0.
     const v = versionParts[i] || 0;
     const c = currentParts[i] || 0;
-    
+
     if (v > c) return true;
     if (v < c) return false;
   }
-  
+
   // Versions are equal.
   return false;
 }
-
 
 // Core function that processes the changelog content.
 // Throws an error if a version conflict is found or if the "Unreleased" section is missing.
@@ -75,12 +73,28 @@ function processChangelog(changelogContent, packageVersion, currentDateStr) {
   // Define the categories (order matters)
   const categories = ['Added', 'Changed', 'Deprecated', 'Removed', 'Fixed', 'Security'];
 
-  // Parse unreleased content for each category.
+  // Parse unreleased content by splitting into lines and then accumulating text for each category.
   const categoryContent = {};
   categories.forEach(category => {
-    const catRegex = new RegExp(`^### ${category}\\s*\\n([\\s\\S]*?)(?=^###\\s|^##\\s|$)`, 'm');
-    const match = unreleasedBlock.match(catRegex);
-    categoryContent[category] = match ? match[1].trim() : '';
+    categoryContent[category] = '';
+  });
+  let currentCategory = null;
+  const unreleasedLines = unreleasedBlock.split('\n');
+  for (const line of unreleasedLines) {
+    // Check if the line is a category header (e.g., "### Added")
+    const headerMatch = line.match(/^###\s*(\w+)/);
+    if (headerMatch && categories.includes(headerMatch[1])) {
+      currentCategory = headerMatch[1];
+      continue;
+    }
+    // If we are within a category, accumulate the line.
+    if (currentCategory) {
+      categoryContent[currentCategory] += line + '\n';
+    }
+  }
+  // Trim each category's content.
+  Object.keys(categoryContent).forEach(key => {
+    categoryContent[key] = categoryContent[key].trim();
   });
 
   // Use the provided currentDateStr or generate today's date in YYYY-MM-DD format.
@@ -95,17 +109,10 @@ function processChangelog(changelogContent, packageVersion, currentDateStr) {
 
   // Build the new release section.
   let newReleaseSection = `## [${newVersion}] - ${dateStr}\n\n`;
-  let firstNonEmptyPrinted = false;
   categories.forEach(category => {
     const bullets = categoryContent[category];
     if (bullets) {
-      if (!firstNonEmptyPrinted && category === 'Added') {
-        newReleaseSection += bullets + "\n\n";
-        firstNonEmptyPrinted = true;
-      } else {
-        newReleaseSection += `### ${category}\n\n${bullets}\n\n`;
-        firstNonEmptyPrinted = true;
-      }
+      newReleaseSection += `### ${category}\n\n${bullets}\n\n`;
     }
   });
 
