@@ -1,0 +1,19 @@
+{
+    "name": "changelog-patcher",
+    "version": "1.0.0",
+    "description": "A CLI tool to update CHANGELOG.md by moving unreleased changes to a new patched version.",
+    "main": "patchChangelog.js",
+    "bin": {
+      "changelog-updater": "./patchChangelog.js"
+    },
+    "scripts": {
+      "test": "node testpatchChangelog.js"
+    },
+    "keywords": [
+      "changelog",
+      "update",
+      "release"
+    ],
+    "author": "Erwin van Hoof | SiteOn",
+    "license": "MIT"
+  }
