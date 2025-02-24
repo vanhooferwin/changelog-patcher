@@ -6,13 +6,15 @@ This tool is designed to automate the process of updating your project’s chang
 
 ## Usage (CLI)
 
-	1.	Ensure your project structure includes:
-	•	A package.json file with a valid version field.
-	•	A CHANGELOG.md file formatted with an Unreleased section and pre-defined category blocks (e.g., Added, Changed, Deprecated, etc.).
-	2.	Run the script:
+### Ensure your project structure includes:
+- A package.json file with a valid version field.
+- A CHANGELOG.md file formatted with an Unreleased section and pre-defined category blocks (e.g., Added, 
+Changed, Deprecated, etc.).
+
+### Run the script:
 
 Execute the following command in your project’s root directory:
-`node patchChangelog.js`
+```node patchChangelog.js```
 
 This will:
 	•	Read the current changelog.
@@ -20,20 +22,21 @@ This will:
 	•	Create a new release section with today’s date.
 	•	Reset the Unreleased section for future changes.
 
-	3.	Output:
+### Output:
 Upon successful execution, the script prints a message confirming the changelog update with the new version number.
 
 ## Usage (package.json)
 
 Using npm Scripts:
 You can also set up an npm script to run the changelog patcher easily. Add the following entry in the scripts section of your package.json:
-`{
+```{
   "scripts": {
     "patch-changelog": "node patchChangelog.js"
   }
-}`
+}
+```
 
-Test
+## Test
 
 The project includes automated tests to ensure that the changelog update works as expected and to catch version conflicts. The tests verify:
 	•	Correct Update: That unreleased content is moved to a new release section with the correct header and date.
