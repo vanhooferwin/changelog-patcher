@@ -31,7 +31,7 @@ Using npm Scripts:
 You can also set up an npm script to run the changelog patcher easily. Add the following entry in the scripts section of your package.json:
 ```{
   "scripts": {
-    "patch-changelog": "node patchChangelog.js"
+    "patch-changelog": "changelog-updater"
   }
 }
 ```
